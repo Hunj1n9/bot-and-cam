@@ -2,6 +2,7 @@ import * as THREE from "three"
 import { Dimensions, Size } from "./types/types"
 import { OrbitControls } from "three/addons/controls/OrbitControls.js"
 import GUI from "lil-gui"
+import Planes from "./planes"
 
 export default class Canvas {
   element: HTMLCanvasElement
@@ -16,6 +17,7 @@ export default class Canvas {
   mouse: THREE.Vector2
   orbitControls: OrbitControls
   debug: GUI
+  planes: Planes
 
   constructor() {
     this.element = document.getElementById("webgl") as HTMLCanvasElement
@@ -25,9 +27,11 @@ export default class Canvas {
     this.createCamera()
     this.createRenderer()
     this.setSizes()
-    this.createRayCaster()
     this.addEventListeners()
     this.createDebug()
+    this.createPlanes()
+    this.createHelpers()
+    this.createOrbitControls()
 
     this.debug.hide()
 
@@ -59,6 +63,10 @@ export default class Canvas {
       this.camera,
       this.renderer.domElement
     )
+  }
+
+  createPlanes() {
+    this.planes = new Planes({ scene: this.scene, sizes: this.sizes })
   }
 
   createRenderer() {
@@ -97,21 +105,9 @@ export default class Canvas {
     this.clock = new THREE.Clock()
   }
 
-  createRayCaster() {
-    this.raycaster = new THREE.Raycaster()
-    this.mouse = new THREE.Vector2()
-  }
-
   onMouseMove(event: MouseEvent) {
     this.mouse.x = (event.clientX / window.innerWidth) * 2 - 1
     this.mouse.y = -(event.clientY / window.innerHeight) * 2 + 1
-
-    this.raycaster.setFromCamera(this.mouse, this.camera)
-    const intersects = this.raycaster.intersectObjects(this.scene.children)
-    const target = intersects[0]
-    if (target && "material" in target.object) {
-      const targetMesh = intersects[0].object as THREE.Mesh
-    }
   }
 
   addEventListeners() {
@@ -135,7 +131,13 @@ export default class Canvas {
   }
 
   render() {
-    this.time = this.clock.getElapsedTime()
+    const now = this.clock.getElapsedTime()
+    const delta = now - this.time
+    this.time = now
+
+    const normalizedDelta = delta / (1 / 60)
+
+    this.planes?.render(normalizedDelta)
 
     this.renderer.render(this.scene, this.camera)
   }
