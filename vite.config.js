@@ -7,5 +7,13 @@ export default defineConfig({
   plugins: [glsl(), tailwindcss()],
   server: {
     host: true,
+    proxy: {
+      "/api": {
+        target: "https://api.spotify.com",
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 })

@@ -1,6 +1,10 @@
 varying vec2 vUv;
+
 attribute vec3 aInitialPosition;
 attribute float aMeshSpeed;
+attribute vec4 aTextureCoords;
+
+
 uniform float uTime;
 uniform vec2 uMaxXdisplacement;
 uniform vec2 uDrag;
@@ -10,6 +14,7 @@ uniform float uScrollY;
 
 
 varying float vVisibility;
+varying vec4 vTextureCoords;
 
 
 //linear smoothstep
@@ -39,8 +44,8 @@ void main()
     float yDisplacement = mod(minYoffset -uDrag.y, maxYoffset+minYoffset) - minYoffset;
 
     
-    float maxZ = 7.;
-    float minZ = -15.;
+    float maxZ = 12.;
+    float minZ = -30.;
     
     float maxZoffset = distance(aInitialPosition.z,maxZ);    
     float minZoffset = distance(aInitialPosition.z,minZ);    
@@ -52,7 +57,7 @@ void main()
     newPosition.z += zDisplacement;
 
 
-    vVisibility = (remap(newPosition.z, minZ, minZ+2.) * (1.-remap(newPosition.z, maxZ-2., maxZ)));
+    vVisibility = remap(newPosition.z, minZ, minZ+5.);
     
 
 
@@ -65,4 +70,5 @@ void main()
     gl_Position = projectedPosition;    
 
     vUv = uv;
+    vTextureCoords = aTextureCoords;
 }
