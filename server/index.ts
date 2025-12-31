@@ -30,9 +30,12 @@ app.use(cors())
 app.use(express.json())
 
 // Serve static files from the dist directory in production
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../dist')))
-}
+// In production, server runs from dist-server/, frontend is in dist/
+const distPath = process.env.NODE_ENV === 'production'
+  ? path.join(__dirname, '../dist')
+  : path.join(__dirname, '../dist')
+
+app.use(express.static(distPath))
 
 // Get all images
 app.get("/api/images", (req, res) => {
