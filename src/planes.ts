@@ -94,9 +94,34 @@ export default class Planes {
 
   async fetchCovers() {
     //const urls: string[] = await get30NewReleaseCovers()
-    const urls: string[] = new Array(30)
-      .fill(0)
-      .map((_, i) => `/covers/image_${i}.jpg`)
+    const urls: string[] = await this.getImagesFromServer()
+    await this.loadTextureAtlas(urls)
+    this.createBlurryAtlas()
+    this.fillMeshData()
+  }
+
+  async getImagesFromServer(): Promise<string[]> {
+    try {
+      // In production, API is on the same host/port
+      // In development, API is on port 3001
+      const apiUrl = import.meta.env.DEV
+        ? 'http://localhost:3001/api/images'
+        : '/api/images'
+
+      const response = await fetch(apiUrl)
+      const images = await response.json()
+
+      // Return data URLs from the API
+      return images.map((img: any) => img.data)
+    } catch (error) {
+      console.error('Failed to fetch images from server:', error)
+      // Fallback to local images
+      return new Array(30).fill(0).map((_, i) => `/covers/image_${i}.jpg`)
+    }
+  }
+
+  async reloadImages() {
+    const urls: string[] = await this.getImagesFromServer()
     await this.loadTextureAtlas(urls)
     this.createBlurryAtlas()
     this.fillMeshData()

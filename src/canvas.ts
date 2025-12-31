@@ -131,6 +131,10 @@ export default class Canvas {
     this.renderer.setSize(this.dimensions.width, this.dimensions.height)
   }
 
+  async reloadImages() {
+    await this.planes?.reloadImages()
+  }
+
   render() {
     const now = this.clock.getElapsedTime()
     const delta = now - this.time
